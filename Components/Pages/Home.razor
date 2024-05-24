@@ -1,0 +1,117 @@
+﻿@page "/"
+@using BlazorApp1.Models.Matrix
+@rendermode InteractiveServer
+
+<style>
+    .page{
+        width: 100vw;
+        height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        position: relative;
+    }
+
+    .map {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .floor {
+        display: grid;
+        grid-template-columns: @($"repeat({matrix.Width}, 1fr)");
+        grid-template-rows: @($"repeat({matrix.Height}, 1fr)");
+        border: 1px solid black;
+        margin: -101px 0;
+        transform: rotate3d(5.5,-0.5,0.5, 63deg);
+    }
+
+    .cell {
+        display: block;
+        width: 50px;
+        height: 50px;
+        border: 1px solid black;
+        background-color: #ffffffa8;
+    }
+
+    .item {
+        display: block;
+        width: 100%;
+        height: 100%;
+        background-color: red;
+    }
+
+    .control{
+        position: absolute;
+        bottom: 0px;
+        left: 0px;
+    }
+
+</style>
+
+<PageTitle>Matrix3D DEmo</PageTitle>
+
+<div class="page">
+    <div class="map">
+        @for (var i = 0; i < matrix.Length; i++)
+        {
+            <div class="floor" style="z-index: @(matrix.Length - i)">
+                @for (var j = 0; j < matrix.Height; j++)
+                {
+                    @for (var m = 0; m < matrix.Width; m++)
+                    {
+                        <div class="cell">
+                            @if (matrix[i, j, m])
+                            {
+                                <span class="item"></span>
+                            }
+                        </div>
+                    }
+                }
+            </div>
+        }
+    </div>
+    <div class="control">
+        <button @onclick="() => Move(Direction.up)">
+            UP
+        </button>
+        <button @onclick="() => Move(Direction.down)">
+            DOWN
+        </button>
+        <button @onclick="() => Move(Direction.left)">
+            LEFT
+        </button>
+        <button @onclick="() => Move(Direction.right)">
+            RIGHT
+        </button>
+        <button @onclick="() => Move(Direction.forward)">
+            FORW
+        </button>
+        <button @onclick="() => Move(Direction.back)">
+            BACK
+        </button>
+    </div>
+</div>
+
+
+@code {
+    private Matrix3D<bool> matrix = new(5, 5, 5);
+    private Point point = new Point(0, 0, 0);
+
+    protected override void OnInitialized()
+    {
+        matrix.Set(true, point);
+        matrix.Set(true, new Point(1, 1, 1));
+        matrix.Set(true, new Point(2, 2, 2));
+    }
+
+    public void Move(Direction direction)
+    {
+        if (matrix.Move(point, direction, (item) => !item))
+    {
+            point.Move(direction);
+        }
+        StateHasChanged();
+    }
+
+}
